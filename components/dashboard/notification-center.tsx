@@ -1,16 +1,18 @@
 import { formatCurrency } from '@/lib/utils';
 
-export function NotificationCenter({
+export type NotificationItem = {
+  id: string;
+  title: string;
+  detail: string;
+  level: 'critical' | 'warning' | 'info';
+  amount?: number;
+  actionLabel?: string;
+};
+
+export default function NotificationCenter({
   notifications
 }: {
-  notifications: Array<{
-    id: string;
-    title: string;
-    detail: string;
-    level: 'critical' | 'warning' | 'info';
-    amount?: number;
-    actionLabel?: string;
-  }>;
+  notifications: NotificationItem[];
 }) {
   const toneMap = {
     critical: 'border-rose-200 bg-rose-50 text-rose-700',
@@ -40,7 +42,9 @@ export function NotificationCenter({
             {item.actionLabel ? <p className="mt-2 text-xs font-medium uppercase tracking-wide opacity-80">{item.actionLabel}</p> : null}
           </div>
         )) : (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">No hay avisos pendientes por ahora.</div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+            No hay avisos relevantes por ahora.
+          </div>
         )}
       </div>
     </section>

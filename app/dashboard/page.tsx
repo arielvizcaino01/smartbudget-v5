@@ -6,7 +6,7 @@ import { ForecastChart } from '@/components/dashboard/forecast-chart';
 import { FutureTimeline } from '@/components/dashboard/future-timeline';
 import { GoalsList } from '@/components/dashboard/goals-list';
 import { HealthScore } from '@/components/dashboard/health-score';
-import { NotificationCenter } from '@/components/dashboard/notification-center';
+import NotificationCenter from '@/components/dashboard/notification-center';
 import { PeriodSwitcher } from '@/components/dashboard/period-switcher';
 import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { RecurringBills } from '@/components/dashboard/recurring-bills';
@@ -28,7 +28,9 @@ export default async function DashboardPage({
 }) {
   const params = (await searchParams) || {};
   const requested = params.period;
-  const period: DashboardPeriod = validPeriods.includes(requested as DashboardPeriod) ? (requested as DashboardPeriod) : 'month';
+  const period: DashboardPeriod = validPeriods.includes(requested as DashboardPeriod)
+    ? (requested as DashboardPeriod)
+    : 'month';
 
   const data = await getDashboardData(period);
   const firstName = data.user.name?.trim().split(' ')[0] || 'Usuario';
@@ -41,8 +43,12 @@ export default async function DashboardPage({
         <div className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
           <div>
             <p className="badge mb-3">Vista general</p>
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Bienvenido de nuevo, {firstName}</h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Cambia entre diario, semanal, mensual y anual para ver el avance real de tus finanzas y la proyección de cierre.</p>
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Bienvenido de nuevo, {firstName}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+              Cambia entre diario, semanal, mensual y anual para ver el avance real de tus finanzas y la proyección de cierre.
+            </p>
             <div className="mt-4">
               <PeriodSwitcher current={period} />
             </div>
@@ -52,12 +58,16 @@ export default async function DashboardPage({
             <div className="rounded-3xl bg-slate-950 p-5 text-white">
               <p className="text-sm text-slate-300">Balance de {data.periodLabel.toLowerCase()}</p>
               <p className="mt-3 text-3xl font-semibold">{formatCurrency(data.summary.balance)}</p>
-              <p className="mt-2 text-sm text-slate-300">Ingresos {formatCurrency(data.summary.totalIncome)} · Gastos {formatCurrency(data.summary.totalSpent)}</p>
+              <p className="mt-2 text-sm text-slate-300">
+                Ingresos {formatCurrency(data.summary.totalIncome)} · Gastos {formatCurrency(data.summary.totalSpent)}
+              </p>
             </div>
             <div className="rounded-3xl bg-brand-50 p-5">
               <p className="text-sm text-brand-700">Proyección de cierre</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{formatCurrency(data.summary.projectedNet)}</p>
-              <p className="mt-2 text-sm text-slate-600">Estimado al ritmo actual: ingresos {formatCurrency(data.summary.projectedIncome)} · gastos {formatCurrency(data.summary.projectedExpense)}</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Estimado al ritmo actual: ingresos {formatCurrency(data.summary.projectedIncome)} · gastos {formatCurrency(data.summary.projectedExpense)}
+              </p>
             </div>
           </div>
         </div>
@@ -66,7 +76,12 @@ export default async function DashboardPage({
       <SummaryCards summary={data.summary} periodLabel={data.periodLabel} />
 
       <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-[1.05fr_.95fr]">
-        <HealthScore score={data.healthScore} savingsRate={data.summary.savingsRate} recurringLoad={data.summary.recurringLoad} avgDailySpend={data.summary.avgDailySpend} />
+        <HealthScore
+          score={data.healthScore}
+          savingsRate={data.summary.savingsRate}
+          recurringLoad={data.summary.recurringLoad}
+          avgDailySpend={data.summary.avgDailySpend}
+        />
         <NotificationCenter notifications={data.notificationCenter} />
       </section>
 
@@ -113,10 +128,22 @@ export default async function DashboardPage({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <SpendingChart data={data.categoryTrend.map((item) => ({ category: item.category, spent: item.spent, limit: item.limit, progress: item.limit ? (item.spent / item.limit) * 100 : 0, status: item.spent > item.limit ? 'over' : 'healthy', id: item.category, alertPercent: 80 }))} />
+        <SpendingChart
+          data={data.categoryTrend.map((item) => ({
+            category: item.category,
+            spent: item.spent,
+            limit: item.limit,
+            progress: item.limit ? (item.spent / item.limit) * 100 : 0,
+            status: item.spent > item.limit ? 'over' : 'healthy',
+            id: item.category,
+            alertPercent: 80
+          }))}
+        />
         <div className="card p-5 sm:p-6">
           <h2 className="text-lg font-semibold">Panorama general</h2>
-          <p className="mt-1 text-sm text-slate-500">Una lectura rápida de tus pagos fijos, tus objetivos abiertos y el ritmo de tus finanzas.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Una lectura rápida de tus pagos fijos, tus objetivos abiertos y el ritmo de tus finanzas.
+          </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-xs uppercase tracking-wide text-slate-500">Suscripciones activas</p>
