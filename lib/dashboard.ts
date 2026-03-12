@@ -135,8 +135,12 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   const recurringLoad = totalIncome > 0 ? ((monthlySubscriptions + recurringBills.reduce((sum: number, item: RecurringBillItem) => sum + item.amount, 0)) / totalIncome) * 100 : 0;
 
   const spendingByCategory = budgets.map((budget: BudgetItem) => {
-    const spent = expenses.filter((item: TransactionItem) => item.category === budget.name).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+    const spent = expenses
+      .filter((item: TransactionItem) => item.category === budget.name)
+      .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+
     const progress = budget.limitAmount ? Math.min((spent / budget.limitAmount) * 100, 999) : 0;
+
     return {
       id: budget.id,
       category: budget.name,
@@ -154,22 +158,35 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   if (period === 'day') {
     chartData = Array.from({ length: 24 }, (_, hour) => {
       const label = `${String(hour).padStart(2, '0')}:00`;
-      const hourIncome = incomes.filter((item: TransactionItem) => new Date(item.date).getHours() === hour).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
-      const hourExpense = expenses.filter((item: TransactionItem) => new Date(item.date).getHours() === hour).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const hourIncome = incomes
+        .filter((item: TransactionItem) => new Date(item.date).getHours() === hour)
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const hourExpense = expenses
+        .filter((item: TransactionItem) => new Date(item.date).getHours() === hour)
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+
       return { label, income: hourIncome, expense: hourExpense, net: hourIncome - hourExpense };
     });
+
     spendData = chartData.map((item) => ({ label: item.label, amount: item.expense }));
   } else if (period === 'week') {
     chartData = Array.from({ length: 7 }, (_, index) => {
       const day = addDays(start, index);
       const label = new Intl.DateTimeFormat('es-ES', { weekday: 'short' }).format(day);
-      const dayIncome = incomes.filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime()).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
-      const dayExpense = expenses.filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime()).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const dayIncome = incomes
+        .filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime())
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const dayExpense = expenses
+        .filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime())
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+
       return { label, income: dayIncome, expense: dayExpense, net: dayIncome - dayExpense };
     });
+
     spendData = chartData.map((item) => ({ label: item.label, amount: item.expense }));
   } else if (period === 'year') {
     const monthMap = new Map<string, { label: string; income: number; expense: number; net: number }>();
+
     for (let i = 0; i < 12; i += 1) {
       const ref = new Date(start.getFullYear(), i, 1);
       const key = monthKey(ref);
@@ -180,6 +197,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         net: 0
       });
     }
+
     for (const tx of filteredTransactions.slice().reverse()) {
       const key = monthKey(tx.date);
       const bucket = monthMap.get(key);
@@ -188,23 +206,39 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
       if (tx.type === 'expense') bucket.expense += tx.amount;
       bucket.net = bucket.income - bucket.expense;
     }
+
     chartData = Array.from(monthMap.values());
     spendData = chartData.map((item) => ({ label: item.label, amount: item.expense }));
   } else {
     const daysInMonth = new Date(fullEnd.getFullYear(), fullEnd.getMonth() + 1, 0).getDate();
+
     chartData = Array.from({ length: daysInMonth }, (_, index) => {
       const day = addDays(start, index);
       const label = `${day.getDate()}`;
-      const dayIncome = incomes.filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime()).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
-      const dayExpense = expenses.filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime()).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const dayIncome = incomes
+        .filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime())
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+      const dayExpense = expenses
+        .filter((item: TransactionItem) => startOfDay(new Date(item.date)).getTime() === startOfDay(day).getTime())
+        .reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
+
       return { label, income: dayIncome, expense: dayExpense, net: dayIncome - dayExpense };
     });
+
     spendData = chartData.map((item) => ({ label: item.label, amount: item.expense }));
   }
 
   const topCategory = [...spendingByCategory].sort((a, b) => b.spent - a.spent)[0];
-  const unitsElapsed = Math.max(1, chartData.filter((item) => item.income > 0 || item.expense > 0).length || Math.ceil((end.getTime() - start.getTime() + 1) / (1000 * 60 * 60 * 24)));
-  const avgDailySpend = expenses.length ? totalSpent / Math.max(1, Math.ceil((end.getTime() - start.getTime() + 1) / (1000 * 60 * 60 * 24))) : 0;
+  const unitsElapsed = Math.max(
+    1,
+    chartData.filter((item) => item.income > 0 || item.expense > 0).length ||
+      Math.ceil((end.getTime() - start.getTime() + 1) / (1000 * 60 * 60 * 24))
+  );
+
+  const avgDailySpend = expenses.length
+    ? totalSpent / Math.max(1, Math.ceil((end.getTime() - start.getTime() + 1) / (1000 * 60 * 60 * 24)))
+    : 0;
+
   const overspend = Math.max(0, totalSpent - totalIncome);
 
   const projectionMultiplier = Math.max(1, totalUnits / unitsElapsed);
@@ -219,8 +253,8 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         id: `budget-${item.id}`,
         title: item.progress >= 100 ? `${item.category} superó su límite` : `${item.category} está cerca del límite`,
         detail: `${item.progress.toFixed(0)}% usado de ${item.limit.toFixed(0)}.`,
-        level: item.progress >= 100 ? 'critical' : 'warning'
-      as const })),
+        level: (item.progress >= 100 ? 'critical' : 'warning') as const
+      })),
     ...subscriptions
       .filter((item: SubscriptionItem) => new Date(item.nextBillingDate) <= addDays(new Date(), 7))
       .slice(0, 3)
@@ -242,8 +276,20 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   ].slice(0, 6);
 
   const upcomingCalendar = [
-    ...subscriptions.map((item: SubscriptionItem) => ({ id: item.id, title: item.name, kind: 'Suscripción', amount: item.monthlyCost, date: item.nextBillingDate })),
-    ...recurringBills.map((item: RecurringBillItem) => ({ id: item.id, title: item.name, kind: 'Pago', amount: item.amount, date: item.dueDate }))
+    ...subscriptions.map((item: SubscriptionItem) => ({
+      id: item.id,
+      title: item.name,
+      kind: 'Suscripción',
+      amount: item.monthlyCost,
+      date: item.nextBillingDate
+    })),
+    ...recurringBills.map((item: RecurringBillItem) => ({
+      id: item.id,
+      title: item.name,
+      kind: 'Pago',
+      amount: item.amount,
+      date: item.dueDate
+    }))
   ]
     .sort((a, b) => +new Date(a.date) - +new Date(b.date))
     .slice(0, 10);
@@ -253,6 +299,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
     const label = new Intl.DateTimeFormat('es-ES', { month: 'short', year: '2-digit' }).format(ref);
     const subscriptionTotal = subscriptions.reduce((sum: number, item: SubscriptionItem) => sum + item.monthlyCost, 0);
     const recurringTotal = recurringBills.reduce((sum: number, item: RecurringBillItem) => sum + item.amount, 0);
+
     return {
       month: label,
       fixed: subscriptionTotal + recurringTotal,
@@ -267,7 +314,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         id: `notice-budget-${item.id}`,
         title: `${item.category} se está acelerando`,
         detail: `Llevas ${item.progress.toFixed(0)}% del límite definido para esta categoría.`,
-        level: item.progress >= 100 ? 'critical' : 'warning' as const,
+        level: (item.progress >= 100 ? 'critical' : 'warning') as const,
         amount: item.spent,
         actionLabel: item.progress >= 100 ? 'Reduce gastos o ajusta el límite' : 'Revisa compras pendientes'
       })),
@@ -279,39 +326,49 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
       amount: item.amount,
       actionLabel: 'Confirma saldo disponible'
     })),
-    ...(projectedNet < 0 ? [{
-      id: 'notice-projection',
-      title: 'La proyección del periodo cierra en negativo',
-      detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.',
-      level: 'critical' as const,
-      amount: projectedNet,
-      actionLabel: 'Recorta gastos variables esta semana'
-    }] : [{
-      id: 'notice-projection-positive',
-      title: 'La proyección del periodo se mantiene saludable',
-      detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.',
-      level: 'info' as const,
-      amount: projectedNet,
-      actionLabel: 'Mantén el ritmo actual'
-    }])
+    ...(projectedNet < 0
+      ? [
+          {
+            id: 'notice-projection',
+            title: 'La proyección del periodo cierra en negativo',
+            detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.',
+            level: 'critical' as const,
+            amount: projectedNet,
+            actionLabel: 'Recorta gastos variables esta semana'
+          }
+        ]
+      : [
+          {
+            id: 'notice-projection-positive',
+            title: 'La proyección del periodo se mantiene saludable',
+            detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.',
+            level: 'info' as const,
+            amount: projectedNet,
+            actionLabel: 'Mantén el ritmo actual'
+          }
+        ])
   ].slice(0, 6);
 
-  const forecastData = Array.from({ length: Math.min(chartData.length, period === 'year' ? 12 : Math.max(4, chartData.length)) }, (_, index) => {
-    const visible = chartData.slice(0, index + 1);
-    const avgIncome = average(visible.map((item) => item.income));
-    const avgExpense = average(visible.map((item) => item.expense));
-    const observedIncome = visible.reduce((sum, item) => sum + item.income, 0);
-    const observedExpense = visible.reduce((sum, item) => sum + item.expense, 0);
-    const remaining = Math.max(0, totalUnits - (index + 1));
-    const projectedIncomeValue = Math.round(observedIncome + avgIncome * remaining);
-    const projectedExpenseValue = Math.round(observedExpense + avgExpense * remaining);
-    return {
-      label: chartData[index]?.label ?? `${index + 1}`,
-      projectedIncome: projectedIncomeValue,
-      projectedExpense: projectedExpenseValue,
-      projectedNet: projectedIncomeValue - projectedExpenseValue
-    };
-  });
+  const forecastData = Array.from(
+    { length: Math.min(chartData.length, period === 'year' ? 12 : Math.max(4, chartData.length)) },
+    (_, index) => {
+      const visible = chartData.slice(0, index + 1);
+      const avgIncome = average(visible.map((item) => item.income));
+      const avgExpense = average(visible.map((item) => item.expense));
+      const observedIncome = visible.reduce((sum, item) => sum + item.income, 0);
+      const observedExpense = visible.reduce((sum, item) => sum + item.expense, 0);
+      const remaining = Math.max(0, totalUnits - (index + 1));
+      const projectedIncomeValue = Math.round(observedIncome + avgIncome * remaining);
+      const projectedExpenseValue = Math.round(observedExpense + avgExpense * remaining);
+
+      return {
+        label: chartData[index]?.label ?? `${index + 1}`,
+        projectedIncome: projectedIncomeValue,
+        projectedExpense: projectedExpenseValue,
+        projectedNet: projectedIncomeValue - projectedExpenseValue
+      };
+    }
+  );
 
   const categoryTrend = spendingByCategory
     .filter((item) => item.spent > 0 || item.limit > 0)
@@ -328,7 +385,11 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
     0,
     Math.min(
       100,
-      100 - recurringLoad * 0.6 - Math.max(0, 100 - savingsRate * 3) - alerts.filter((item) => item.level !== 'info').length * 5 + (goals.length ? 8 : 0)
+      100 -
+        recurringLoad * 0.6 -
+        Math.max(0, 100 - savingsRate * 3) -
+        alerts.filter((item) => item.level !== 'info').length * 5 +
+        (goals.length ? 8 : 0)
     )
   );
 
