@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const COOKIE_NAME = 'smartbudget_session';
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const session = request.cookies.get('session')?.value;
+  const session = request.cookies.get(COOKIE_NAME)?.value;
 
   const isPublicAsset =
     pathname.startsWith('/icons/') ||
@@ -25,8 +27,9 @@ export function proxy(request: NextRequest) {
     pathname === '/auth/signin' || pathname === '/auth/signup';
 
   const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isOnboardingRoute = pathname.startsWith('/onboarding');
 
-  if (isDashboardRoute && !session) {
+  if ((isDashboardRoute || isOnboardingRoute) && !session) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
