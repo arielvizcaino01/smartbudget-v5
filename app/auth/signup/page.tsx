@@ -14,7 +14,7 @@ export default async function SignUpPage({
       <div className="card w-full max-w-lg p-8">
         <p className="badge mb-4">Registro</p>
         <h1 className="text-3xl font-bold">Crea tu cuenta</h1>
-        <p className="mt-2 text-sm text-slate-500">Empieza con un espacio privado para tus finanzas.</p>
+        <p className="mt-2 text-sm text-slate-500">Empieza con un espacio privado para organizar tus finanzas.</p>
         {error ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
         <form action={signUp} className="mt-6 grid gap-4">
           <div>

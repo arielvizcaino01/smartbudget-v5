@@ -2,14 +2,15 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 async function main() {
-  const email = process.env.DEMO_USER_EMAIL ?? "demo@smartbudget.app";
-  const password = process.env.DEMO_USER_PASSWORD ?? "demo12345";
+  const email = process.env.DEFAULT_USER_EMAIL ?? process.env.DEMO_USER_EMAIL ?? "owner@smartbudget.app";
+  const password = process.env.DEFAULT_USER_PASSWORD ?? process.env.DEMO_USER_PASSWORD ?? "change-this-password";
+  const name = process.env.DEFAULT_USER_NAME ?? "Cuenta principal";
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.upsert({
     where: { email },
     update: {
-      name: "Demo User",
+      name,
       passwordHash,
       currency: "USD",
       monthlyIncome: 5200,
@@ -17,7 +18,7 @@ async function main() {
     },
     create: {
       email,
-      name: "Demo User",
+      name,
       passwordHash,
       currency: "USD",
       monthlyIncome: 5200,
@@ -43,13 +44,13 @@ async function main() {
 
   await prisma.transaction.createMany({
     data: [
-      { userId: user.id, name: "Pago DoorDash", category: "Ingresos", amount: 1250, type: "income", merchant: "DoorDash", date: new Date("2026-03-02") },
-      { userId: user.id, name: "Spark semanal", category: "Ingresos", amount: 890, type: "income", merchant: "Spark", date: new Date("2026-03-05") },
+      { userId: user.id, name: "Pago semanal", category: "Ingresos", amount: 1250, type: "income", merchant: "Trabajo", date: new Date("2026-03-02") },
+      { userId: user.id, name: "Ingreso extra", category: "Ingresos", amount: 890, type: "income", merchant: "Servicios", date: new Date("2026-03-05") },
       { userId: user.id, name: "Supermercado", category: "Comida", amount: 142.6, type: "expense", merchant: "Trader Joe's", date: new Date("2026-03-03") },
-      { userId: user.id, name: "Carga Tesla", category: "Transporte", amount: 41.25, type: "expense", merchant: "Tesla Supercharger", date: new Date("2026-03-04") },
-      { userId: user.id, name: "Renta", category: "Hogar", amount: 1200, type: "expense", merchant: "Landlord", date: new Date("2026-03-01"), recurring: true },
+      { userId: user.id, name: "Carga del auto", category: "Transporte", amount: 41.25, type: "expense", merchant: "Supercharger", date: new Date("2026-03-04") },
+      { userId: user.id, name: "Renta", category: "Hogar", amount: 1200, type: "expense", merchant: "Arrendador", date: new Date("2026-03-01"), recurring: true },
       { userId: user.id, name: "Netflix", category: "Entretenimiento", amount: 18.99, type: "expense", merchant: "Netflix", date: new Date("2026-03-06"), recurring: true },
-      { userId: user.id, name: "Gym", category: "Salud", amount: 45, type: "expense", merchant: "Gym", date: new Date("2026-03-07"), recurring: true }
+      { userId: user.id, name: "Gimnasio", category: "Salud", amount: 45, type: "expense", merchant: "Gym", date: new Date("2026-03-07"), recurring: true }
     ]
   });
 
@@ -64,14 +65,14 @@ async function main() {
   await prisma.goal.createMany({
     data: [
       { userId: user.id, name: "Fondo de emergencia", targetAmount: 10000, currentAmount: 3400, targetDate: new Date("2026-12-31") },
-      { userId: user.id, name: "Trading account", targetAmount: 5000, currentAmount: 1450, targetDate: new Date("2026-08-31") }
+      { userId: user.id, name: "Cuenta de inversión", targetAmount: 5000, currentAmount: 1450, targetDate: new Date("2026-08-31") }
     ]
   });
 
   await prisma.recurringBill.createMany({
     data: [
       { userId: user.id, name: "Internet", amount: 69.99, dueDate: new Date("2026-03-18"), frequency: "monthly", isPaid: false },
-      { userId: user.id, name: "Seguro del carro", amount: 162.35, dueDate: new Date("2026-03-25"), frequency: "monthly", isPaid: false }
+      { userId: user.id, name: "Seguro del auto", amount: 162.35, dueDate: new Date("2026-03-25"), frequency: "monthly", isPaid: false }
     ]
   });
 }

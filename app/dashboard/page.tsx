@@ -16,15 +16,16 @@ import { getDashboardData } from '@/lib/dashboard';
 
 export default async function DashboardPage() {
   const data = await getDashboardData();
+  const firstName = data.user.name?.trim().split(' ')[0] || 'Usuario';
 
   return (
     <div className="space-y-6">
       <section className="card overflow-hidden p-6">
         <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
           <div>
-            <p className="badge mb-3">SmartBudget v5</p>
-            <h2 className="text-2xl font-semibold tracking-tight">Centro financiero de {data.user.name}</h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Panel privado con control de gastos, seguimiento de metas, alertas automáticas y proyección de pagos futuros.</p>
+            <p className="badge mb-3">Resumen</p>
+            <h2 className="text-2xl font-semibold tracking-tight">Bienvenido de nuevo, {firstName}</h2>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">Aquí tienes el estado actual de tus ingresos, gastos, cargos próximos y objetivos de ahorro.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <div className="rounded-3xl bg-slate-950 p-5 text-white">
@@ -32,8 +33,8 @@ export default async function DashboardPage() {
               <p className="mt-3 text-2xl font-semibold">{new Date(data.user.createdAt).toLocaleDateString('es-ES')}</p>
             </div>
             <div className="rounded-3xl bg-brand-50 p-5">
-              <p className="text-sm text-brand-700">Próximo paso recomendado</p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">Revisa {data.alerts.length ? 'alertas y cargos cercanos' : 'tu tasa de ahorro y metas'}.</p>
+              <p className="text-sm text-brand-700">Revisión sugerida</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{data.alerts.length ? 'Hay movimientos y alertas que conviene revisar hoy.' : 'Tus números están estables este mes.'}</p>
             </div>
           </div>
         </div>
@@ -76,8 +77,8 @@ export default async function DashboardPage() {
       <section className="grid gap-6 xl:grid-cols-2">
         <SubscriptionList items={data.subscriptions} />
         <div className="card p-6">
-          <h2 className="text-lg font-semibold">Panorama de metas y suscripciones</h2>
-          <p className="mt-1 text-sm text-slate-500">Una vista corta para confirmar cuánto te comprometen los pagos fijos y cuánto avanzan tus objetivos.</p>
+          <h2 className="text-lg font-semibold">Panorama general</h2>
+          <p className="mt-1 text-sm text-slate-500">Una vista rápida para entender cuánto representan tus cargos fijos y cómo avanzan tus objetivos.</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-xs uppercase tracking-wide text-slate-500">Suscripciones activas</p>
@@ -85,7 +86,7 @@ export default async function DashboardPage() {
               <p className="mt-1 text-sm text-slate-500">{data.summary.monthlySubscriptions.toFixed(2)} al mes</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Metas abiertas</p>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Objetivos abiertos</p>
               <p className="mt-2 text-2xl font-semibold">{data.goals.length}</p>
               <p className="mt-1 text-sm text-slate-500">{data.summary.totalSaved.toFixed(2)} ahorrados</p>
             </div>

@@ -17,12 +17,12 @@ export function HealthScore({
     <section className="card p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="badge mb-3">Panel inteligente</p>
-          <h2 className="text-xl font-semibold">Salud financiera</h2>
-          <p className="mt-1 text-sm text-slate-500">Una lectura rápida de ahorro, presión de pagos fijos y velocidad de gasto.</p>
+          <p className="badge mb-3">Estado general</p>
+          <h2 className="text-xl font-semibold">Estado financiero</h2>
+          <p className="mt-1 text-sm text-slate-500">Una lectura rápida del ahorro, la carga fija y el ritmo de gasto del mes.</p>
         </div>
         <div className={`rounded-3xl border px-5 py-4 text-center ${tone}`}>
-          <div className="text-xs uppercase tracking-[0.18em]">Score</div>
+          <div className="text-xs uppercase tracking-[0.18em]">Nivel</div>
           <div className="text-3xl font-bold">{Math.round(score)}</div>
         </div>
       </div>

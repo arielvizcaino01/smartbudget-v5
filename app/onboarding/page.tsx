@@ -7,9 +7,9 @@ export default async function OnboardingPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
       <div className="card w-full max-w-2xl p-8">
-        <p className="badge mb-4">Onboarding</p>
-        <h1 className="text-3xl font-bold">Configura tu espacio</h1>
-        <p className="mt-2 text-sm text-slate-500">Completa estos datos para personalizar tus presupuestos y tu panel inicial.</p>
+        <p className="badge mb-4">Configuración inicial</p>
+        <h1 className="text-3xl font-bold">Ajusta tu cuenta</h1>
+        <p className="mt-2 text-sm text-slate-500">Completa estos datos para personalizar tus presupuestos y el resumen principal.</p>
         <form action={completeOnboarding} className="mt-8 grid gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-medium">Nombre</label>
@@ -30,10 +30,10 @@ export default async function OnboardingPage() {
             <input name="monthlyIncome" type="number" step="0.01" defaultValue={user.monthlyIncome || 0} className="input" placeholder="4500" required />
           </div>
           <div className="rounded-3xl bg-slate-50 p-5 text-sm text-slate-600 md:col-span-2">
-            Esto creará una base inicial de categorías para que puedas empezar a registrar gastos sin tener que configurarlo todo a mano.
+            Se crearán categorías base para que puedas empezar a registrar movimientos sin configurar todo desde cero.
           </div>
           <div className="md:col-span-2 flex justify-end">
-            <button className="btn-primary">Entrar al dashboard</button>
+            <button className="btn-primary">Entrar al resumen</button>
           </div>
         </form>
       </div>

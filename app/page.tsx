@@ -2,11 +2,11 @@ import Link from 'next/link';
 
 export default function HomePage() {
   const features = [
-    'Dashboard privado con autenticación',
-    'Transacciones, presupuestos, suscripciones y metas',
-    'Alertas de presupuesto y timeline de gastos futuros',
-    'Clasificación automática de gastos',
-    'Compatible con Prisma, Neon y despliegue en Vercel'
+    'Registro manual de ingresos y gastos',
+    'Presupuestos por categoría con alertas',
+    'Seguimiento de suscripciones y pagos recurrentes',
+    'Objetivos de ahorro y actividad reciente',
+    'Acceso seguro y datos separados por cuenta'
   ];
 
   return (
@@ -23,12 +23,12 @@ export default function HomePage() {
 
       <section className="grid flex-1 gap-8 py-12 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
         <div>
-          <p className="badge mb-4">Versión v5</p>
-          <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-slate-950">Un SaaS de finanzas personal listo para crecer y desplegarse.</h1>
-          <p className="mt-5 max-w-2xl text-lg text-slate-600">Gestiona tu dinero con un panel moderno, autenticación real, categorías automáticas, visualizaciones avanzadas y una base preparada para Neon y Vercel.</p>
+          <p className="badge mb-4">Finanzas personales</p>
+          <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-slate-950">Tus finanzas, en un solo lugar.</h1>
+          <p className="mt-5 max-w-2xl text-lg text-slate-600">Organiza movimientos, controla tus presupuestos, revisa cargos próximos y sigue el avance de tus objetivos con una interfaz clara y enfocada en el día a día.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/auth/signup" className="btn-primary">Empezar</Link>
-            <Link href="/auth/signin" className="rounded-2xl border border-slate-200 px-4 py-3 font-medium text-slate-700">Entrar al panel</Link>
+            <Link href="/auth/signin" className="rounded-2xl border border-slate-200 px-4 py-3 font-medium text-slate-700">Entrar</Link>
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {features.map((feature) => (
@@ -43,20 +43,20 @@ export default function HomePage() {
             <p className="text-sm text-slate-300">Resumen rápido</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-300">Control mensual</p>
-                <p className="mt-2 text-2xl font-semibold">Budgeting</p>
+                <p className="text-xs uppercase tracking-wide text-slate-300">Movimientos</p>
+                <p className="mt-2 text-2xl font-semibold">Registro diario</p>
               </div>
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-300">Proyección</p>
-                <p className="mt-2 text-2xl font-semibold">Timeline</p>
+                <p className="text-xs uppercase tracking-wide text-slate-300">Presupuestos</p>
+                <p className="mt-2 text-2xl font-semibold">Límites claros</p>
               </div>
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-300">Automatización</p>
-                <p className="mt-2 text-2xl font-semibold">Auto-categorías</p>
+                <p className="text-xs uppercase tracking-wide text-slate-300">Suscripciones</p>
+                <p className="mt-2 text-2xl font-semibold">Próximos cargos</p>
               </div>
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wide text-slate-300">Deploy</p>
-                <p className="mt-2 text-2xl font-semibold">Vercel + Neon</p>
+                <p className="text-xs uppercase tracking-wide text-slate-300">Objetivos</p>
+                <p className="mt-2 text-2xl font-semibold">Ahorro visible</p>
               </div>
             </div>
           </div>

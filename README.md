@@ -1,24 +1,22 @@
-# SmartBudget v5
+# SmartBudget v6
 
-Aplicación SaaS de finanzas personales con autenticación, dashboard privado, transacciones, presupuestos, suscripciones, metas, alertas automáticas y proyección de gastos futuros.
+Aplicación de finanzas personales con autenticación, panel privado, movimientos, presupuestos, suscripciones, pagos recurrentes y objetivos de ahorro.
 
-## Stack
+## Requisitos
 
-- Next.js App Router
-- Prisma ORM
-- PostgreSQL en Neon
-- Tailwind CSS
-- Recharts
+- Node.js 20+
+- Base de datos PostgreSQL en Neon
 
 ## Variables de entorno
 
-Crea un archivo `.env` usando `.env.example`.
+Crea un archivo `.env` a partir de `.env.example` y completa:
 
 ```env
-DATABASE_URL="postgresql://..."
-AUTH_SECRET="un-secreto-largo"
-DEMO_USER_EMAIL="demo@smartbudget.app"
-DEMO_USER_PASSWORD="demo12345"
+DATABASE_URL="postgresql://user:password@host/db?sslmode=require"
+AUTH_SECRET="un-secreto-largo-y-aleatorio"
+DEFAULT_USER_EMAIL="owner@smartbudget.app"
+DEFAULT_USER_PASSWORD="change-this-password"
+DEFAULT_USER_NAME="Cuenta principal"
 ```
 
 ## Desarrollo local
@@ -35,12 +33,9 @@ npm run dev
 
 1. Sube el proyecto a GitHub.
 2. Importa el repositorio en Vercel.
-3. Agrega las variables `DATABASE_URL`, `AUTH_SECRET`, `DEMO_USER_EMAIL` y `DEMO_USER_PASSWORD`.
-4. Usa el comando de build por defecto del proyecto.
-5. Verifica que Neon permita conexiones desde Vercel con la misma `DATABASE_URL`.
+3. Agrega `DATABASE_URL` y `AUTH_SECRET` en Environment Variables.
+4. Ejecuta el deploy.
 
-## Notas
+## Nota
 
-- Toda la información se guarda por usuario.
-- Prisma está configurado para PostgreSQL y funciona bien con Neon.
-- No requiere almacenamiento local del servidor, así que está preparado para un entorno serverless.
+La conexión a Neon debe ir siempre por variables de entorno. No incluyas credenciales reales dentro del código ni del repositorio.

@@ -13,18 +13,18 @@ export function SmartInsights({
   };
 }) {
   const cards = [
-    { label: 'Categoría dominante', value: insights.topCategory, secondary: formatCurrency(insights.topCategoryAmount) },
-    { label: 'Velocidad de gasto', value: formatCurrency(insights.spendVelocity), secondary: 'promedio diario' },
-    { label: 'Flujo libre', value: formatCurrency(insights.freeCashflow), secondary: 'balance menos suscripciones' },
-    { label: 'Burn mensual', value: formatCurrency(insights.monthlyBurn), secondary: 'si gastas más de lo que ingresas' }
+    { label: 'Categoría principal', value: insights.topCategory, secondary: formatCurrency(insights.topCategoryAmount) },
+    { label: 'Promedio diario', value: formatCurrency(insights.spendVelocity), secondary: 'gasto estimado por día' },
+    { label: 'Saldo libre', value: formatCurrency(insights.freeCashflow), secondary: 'balance luego de suscripciones' },
+    { label: 'Exceso del mes', value: formatCurrency(insights.monthlyBurn), secondary: 'solo aparece si el gasto supera al ingreso' }
   ];
 
   return (
     <section className="card p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Insights automáticos</h2>
-          <p className="text-sm text-slate-500">Lecturas rápidas para decidir sin revisar todo el panel.</p>
+          <h2 className="text-lg font-semibold">Resumen del mes</h2>
+          <p className="text-sm text-slate-500">Lecturas rápidas para revisar lo importante sin recorrer todo el panel.</p>
         </div>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
