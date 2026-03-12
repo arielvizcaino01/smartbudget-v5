@@ -5,6 +5,22 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = request.cookies.get('session')?.value;
 
+  const isPublicAsset =
+    pathname.startsWith('/icons/') ||
+    pathname === '/manifest.webmanifest' ||
+    pathname === '/apple-touch-icon.png' ||
+    pathname === '/apple-touch-icon-precomposed.png' ||
+    pathname === '/favicon.ico' ||
+    pathname === '/favicon.png' ||
+    pathname === '/sw.js' ||
+    pathname === '/offline' ||
+    pathname.startsWith('/_next/') ||
+    pathname.includes('.');
+
+  if (isPublicAsset) {
+    return NextResponse.next();
+  }
+
   const isAuthPage = pathname === '/login' || pathname === '/register';
   const isDashboardRoute = pathname.startsWith('/dashboard');
 
@@ -20,5 +36,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/register'],
+  matcher: ['/((?!api|_next/static|_next/image).*)'],
 };
