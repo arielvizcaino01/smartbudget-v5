@@ -253,7 +253,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         id: `budget-${item.id}`,
         title: item.progress >= 100 ? `${item.category} superó su límite` : `${item.category} está cerca del límite`,
         detail: `${item.progress.toFixed(0)}% usado de ${item.limit.toFixed(0)}.`,
-        level: (item.progress >= 100 ? 'critical' : 'warning') as const
+        level: item.progress >= 100 ? 'critical' : 'warning'
       })),
     ...subscriptions
       .filter((item: SubscriptionItem) => new Date(item.nextBillingDate) <= addDays(new Date(), 7))
@@ -314,7 +314,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         id: `notice-budget-${item.id}`,
         title: `${item.category} se está acelerando`,
         detail: `Llevas ${item.progress.toFixed(0)}% del límite definido para esta categoría.`,
-        level: (item.progress >= 100 ? 'critical' : 'warning') as const,
+        level: item.progress >= 100 ? 'critical' : 'warning',
         amount: item.spent,
         actionLabel: item.progress >= 100 ? 'Reduce gastos o ajusta el límite' : 'Revisa compras pendientes'
       })),
