@@ -1,21 +1,26 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const hasSession = Boolean(request.cookies.get("smartbudget_session")?.value);
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if ((pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) && !hasSession) {
-    return NextResponse.redirect(new URL("/auth/signin", request.url));
+  const publicRoutes = ['/login', '/register', '/'];
+  const authToken = request.cookies.get('session')?.value;
+
+  const isPublicRoute = publicRoutes.includes(pathname);
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+
+  if (isDashboardRoute && !authToken) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if ((pathname.startsWith("/auth/signin") || pathname.startsWith("/auth/signup")) && hasSession) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (isPublicRoute && authToken && (pathname === '/login' || pathname === '/register')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/onboarding", "/auth/signin", "/auth/signup"]
+  matcher: ['/dashboard/:path*', '/login', '/register'],
 };
