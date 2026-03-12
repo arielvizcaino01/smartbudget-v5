@@ -2,9 +2,11 @@ import { BudgetAlerts } from '@/components/dashboard/budget-alerts';
 import { BudgetList } from '@/components/dashboard/budget-list';
 import { CashflowChart } from '@/components/dashboard/cashflow-chart';
 import { DailySpendingChart } from '@/components/dashboard/daily-spending-chart';
+import { ForecastChart } from '@/components/dashboard/forecast-chart';
 import { FutureTimeline } from '@/components/dashboard/future-timeline';
 import { GoalsList } from '@/components/dashboard/goals-list';
 import { HealthScore } from '@/components/dashboard/health-score';
+import { NotificationCenter } from '@/components/dashboard/notification-center';
 import { PeriodSwitcher } from '@/components/dashboard/period-switcher';
 import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { RecurringBills } from '@/components/dashboard/recurring-bills';
@@ -13,6 +15,7 @@ import { SpendingChart } from '@/components/dashboard/spending-chart';
 import { SubscriptionList } from '@/components/dashboard/subscription-list';
 import { SummaryCards } from '@/components/dashboard/summary-cards';
 import { UpcomingCalendar } from '@/components/dashboard/upcoming-calendar';
+import { InstallBanner } from '@/components/pwa/install-banner';
 import { getDashboardData, DashboardPeriod } from '@/lib/dashboard';
 import { formatCurrency } from '@/lib/utils';
 
@@ -32,12 +35,14 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-5 sm:space-y-6">
+      <InstallBanner />
+
       <section className="card overflow-hidden p-4 sm:p-6">
         <div className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
           <div>
             <p className="badge mb-3">Vista general</p>
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Bienvenido de nuevo, {firstName}</h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Cambia entre diario, semanal, mensual y anual para ver cómo van tus finanzas hasta la fecha.</p>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">Cambia entre diario, semanal, mensual y anual para ver el avance real de tus finanzas y la proyección de cierre.</p>
             <div className="mt-4">
               <PeriodSwitcher current={period} />
             </div>
@@ -50,11 +55,9 @@ export default async function DashboardPage({
               <p className="mt-2 text-sm text-slate-300">Ingresos {formatCurrency(data.summary.totalIncome)} · Gastos {formatCurrency(data.summary.totalSpent)}</p>
             </div>
             <div className="rounded-3xl bg-brand-50 p-5">
-              <p className="text-sm text-brand-700">Estado actual</p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">
-                {data.summary.balance >= 0 ? 'Vas por encima de tus gastos en este corte.' : 'Tus gastos superan tus ingresos en este corte.'}
-              </p>
-              <p className="mt-2 text-sm text-slate-600">{data.summary.transactionCount} movimientos revisados en {data.periodLabel.toLowerCase()}.</p>
+              <p className="text-sm text-brand-700">Proyección de cierre</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{formatCurrency(data.summary.projectedNet)}</p>
+              <p className="mt-2 text-sm text-slate-600">Estimado al ritmo actual: ingresos {formatCurrency(data.summary.projectedIncome)} · gastos {formatCurrency(data.summary.projectedExpense)}</p>
             </div>
           </div>
         </div>
@@ -64,7 +67,7 @@ export default async function DashboardPage({
 
       <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-[1.05fr_.95fr]">
         <HealthScore score={data.healthScore} savingsRate={data.summary.savingsRate} recurringLoad={data.summary.recurringLoad} avgDailySpend={data.summary.avgDailySpend} />
-        <BudgetAlerts alerts={data.alerts} />
+        <NotificationCenter notifications={data.notificationCenter} />
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
@@ -73,11 +76,16 @@ export default async function DashboardPage({
           title={`Ingresos vs gastos · ${data.periodLabel}`}
           description={`Comparación de entradas y salidas para ${data.periodLabel.toLowerCase()}.`}
         />
+        <ForecastChart data={data.forecastData} />
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
         <DailySpendingChart
           data={data.periodSpending}
           title={`Distribución del gasto · ${data.periodLabel}`}
           description={`Así se reparte el gasto dentro de ${data.periodLabel.toLowerCase()}.`}
         />
+        <BudgetAlerts alerts={data.alerts} />
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
@@ -105,7 +113,7 @@ export default async function DashboardPage({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <SpendingChart data={data.spendingByCategory} />
+        <SpendingChart data={data.categoryTrend.map((item) => ({ category: item.category, spent: item.spent, limit: item.limit, progress: item.limit ? (item.spent / item.limit) * 100 : 0, status: item.spent > item.limit ? 'over' : 'healthy', id: item.category, alertPercent: 80 }))} />
         <div className="card p-5 sm:p-6">
           <h2 className="text-lg font-semibold">Panorama general</h2>
           <p className="mt-1 text-sm text-slate-500">Una lectura rápida de tus pagos fijos, tus objetivos abiertos y el ritmo de tus finanzas.</p>

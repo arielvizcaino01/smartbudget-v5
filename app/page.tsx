@@ -6,7 +6,7 @@ export default function HomePage() {
     'Presupuestos por categoría con alertas',
     'Seguimiento de suscripciones y pagos recurrentes',
     'Objetivos de ahorro y actividad reciente',
-    'Acceso seguro y datos separados por cuenta'
+    'Acceso seguro, diseño móvil e instalación en pantalla de inicio'
   ];
 
   return (
@@ -25,7 +25,7 @@ export default function HomePage() {
         <div>
           <p className="badge mb-4">Finanzas personales</p>
           <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-slate-950">Tus finanzas, en un solo lugar.</h1>
-          <p className="mt-5 max-w-2xl text-lg text-slate-600">Organiza movimientos, controla tus presupuestos, revisa cargos próximos y sigue el avance de tus objetivos con una interfaz clara y enfocada en el día a día.</p>
+          <p className="mt-5 max-w-2xl text-lg text-slate-600">Organiza movimientos, controla tus presupuestos, revisa cargos próximos, sigue el avance de tus objetivos y úsala como app instalada en tu teléfono.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/auth/signup" className="btn-primary">Empezar</Link>
             <Link href="/auth/signin" className="rounded-2xl border border-slate-200 px-4 py-3 font-medium text-slate-700">Entrar</Link>
