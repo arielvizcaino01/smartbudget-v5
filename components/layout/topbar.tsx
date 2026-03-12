@@ -1,0 +1,38 @@
+import { signOut } from '@/app/auth/actions';
+import { requireCompletedUser } from '@/lib/auth';
+
+export async function Topbar() {
+  const user = await requireCompletedUser();
+
+  return (
+    <header className="mb-6 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-soft">
+      <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between md:p-6">
+        <div>
+          <p className="badge mb-2">Private workspace</p>
+          <h1 className="text-2xl font-bold tracking-tight">Hola, {user.name}</h1>
+          <p className="text-sm text-slate-500">Controla gastos, presupuestos, suscripciones, metas y proyecciones desde un solo lugar.</p>
+        </div>
+        <div className="flex flex-col items-start gap-3 md:items-end">
+          <div className="grid grid-cols-2 gap-3 text-sm text-slate-500 md:text-right">
+            <div>
+              <p className="font-semibold text-slate-900">Moneda</p>
+              <p>{user.currency}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-900">Ingreso mensual</p>
+              <p>{new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'USD', maximumFractionDigits: 0 }).format(user.monthlyIncome || 0)}</p>
+            </div>
+          </div>
+          <form action={signOut}>
+            <button className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">Cerrar sesión</button>
+          </form>
+        </div>
+      </div>
+      <div className="grid gap-px border-t border-slate-200 bg-slate-200 md:grid-cols-3">
+        <div className="bg-slate-50 px-5 py-3 text-sm text-slate-600">Dashboard privado listo para Neon</div>
+        <div className="bg-slate-50 px-5 py-3 text-sm text-slate-600">Auth por email y contraseña</div>
+        <div className="bg-slate-50 px-5 py-3 text-sm text-slate-600">Deploy pensado para Vercel</div>
+      </div>
+    </header>
+  );
+}

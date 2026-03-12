@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String           @id @default(cuid())
+  email              String           @unique
+  name               String
+  passwordHash       String
+  currency           String           @default("USD")
+  monthlyIncome      Float            @default(0)
+  onboardingComplete Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  transactions       Transaction[]
+  budgets            BudgetCategory[]
+  subscriptions      Subscription[]
+  goals              Goal[]
+  recurringBills     RecurringBill[]
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  category  String
+  amount    Float
+  type      String
+  merchant  String?
+  date      DateTime
+  recurring Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model BudgetCategory {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  icon         String
+  limitAmount  Float
+  alertPercent Int      @default(80)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, name])
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  category        String
+  monthlyCost     Float
+  status          String   @default("active")
+  renewalType     String   @default("monthly")
+  nextBillingDate DateTime
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, nextBillingDate])
+}
+
+model Goal {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  targetAmount  Float
+  currentAmount Float
+  targetDate    DateTime
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model RecurringBill {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  amount    Float
+  dueDate   DateTime
+  frequency String
+  isPaid    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueDate])
+}
