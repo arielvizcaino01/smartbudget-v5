@@ -39,3 +39,11 @@ npm run dev
 ## Nota
 
 La conexión a Neon debe ir siempre por variables de entorno. No incluyas credenciales reales dentro del código ni del repositorio.
+
+
+## v9 PWA
+- Manifest profesional
+- Iconos root para iPhone y Android
+- Banner de instalación para iOS y Android
+- Service worker actualizado
+- Corrección del error 404 al añadir a pantalla de inicio
