@@ -20,7 +20,14 @@ function dateValue(value: FormDataEntryValue | null) {
 }
 
 function refreshAll() {
-  ["/dashboard", "/dashboard/transactions", "/dashboard/budgets", "/dashboard/subscriptions", "/dashboard/goals", "/dashboard/settings"].forEach(revalidatePath);
+  [
+    "/dashboard",
+    "/dashboard/transactions",
+    "/dashboard/budgets",
+    "/dashboard/subscriptions",
+    "/dashboard/goals",
+    "/dashboard/settings",
+  ].forEach((path) => revalidatePath(path));
 }
 
 export async function createTransaction(formData: FormData) {
