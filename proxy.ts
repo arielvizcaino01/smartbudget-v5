@@ -21,11 +21,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage =
+    pathname === '/auth/signin' || pathname === '/auth/signup';
+
   const isDashboardRoute = pathname.startsWith('/dashboard');
 
   if (isDashboardRoute && !session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
   if (isAuthPage && session) {
