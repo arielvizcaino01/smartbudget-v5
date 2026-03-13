@@ -3,6 +3,24 @@ import { getCurrentAppUser } from '@/lib/app-data';
 
 export type DashboardPeriod = 'day' | 'week' | 'month' | 'year';
 
+type NoticeLevel = 'info' | 'warning' | 'critical';
+
+type AlertItem = {
+  id: string;
+  title: string;
+  detail: string;
+  level: NoticeLevel;
+};
+
+type NotificationItem = {
+  id: string;
+  title: string;
+  detail: string;
+  level: NoticeLevel;
+  amount?: number;
+  actionLabel?: string;
+};
+
 function monthKey(date: Date | string) {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -99,34 +117,17 @@ function average(values: number[]) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
-type NoticeLevel = 'info' | 'warning' | 'critical';
-
-type AlertItem = {
-  id: string;
-  title: string;
-  detail: string;
-  level: NoticeLevel;
-};
-
-type NotificationItem = {
-  id: string;
-  title: string;
-  detail: string;
-  level: NoticeLevel;
-  amount?: number;
-  actionLabel?: string;
-};
-
 export async function getDashboardData(period: DashboardPeriod = 'month') {
   const user = await getCurrentAppUser();
   const { start, end, fullEnd, label, totalUnits } = getPeriodRange(period);
 
-  const [transactions, budgets, subscriptions, goals, recurringBills] = await Promise.all([
-    prisma.transaction.findMany({ where: { userId: user.id }, orderBy: { date: 'desc' }, take: 365 }),
+  const [transactions, budgets, subscriptions, goals, recurringBills, accounts] = await Promise.all([
+    prisma.transaction.findMany({ where: { userId: user.id }, include: { account: true }, orderBy: { date: 'desc' }, take: 365 }),
     prisma.budgetCategory.findMany({ where: { userId: user.id }, orderBy: { name: 'asc' } }),
     prisma.subscription.findMany({ where: { userId: user.id }, orderBy: { nextBillingDate: 'asc' } }),
     prisma.goal.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' } }),
-    prisma.recurringBill.findMany({ where: { userId: user.id }, orderBy: { dueDate: 'asc' } })
+    prisma.recurringBill.findMany({ where: { userId: user.id }, orderBy: { dueDate: 'asc' } }),
+    prisma.account.findMany({ where: { userId: user.id, isActive: true }, orderBy: { createdAt: 'asc' } })
   ]);
 
   type TransactionItem = (typeof transactions)[number];
@@ -134,6 +135,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   type SubscriptionItem = (typeof subscriptions)[number];
   type GoalItem = (typeof goals)[number];
   type RecurringBillItem = (typeof recurringBills)[number];
+  type AccountItem = (typeof accounts)[number];
 
   const filteredTransactions = transactions.filter((item: TransactionItem) => {
     const time = new Date(item.date).getTime();
@@ -151,6 +153,9 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   const recurringUpcoming = recurringBills.filter((item: RecurringBillItem) => !item.isPaid).slice(0, 5);
   const savingsRate = totalIncome > 0 ? Math.max(0, ((totalIncome - totalSpent) / totalIncome) * 100) : 0;
   const recurringLoad = totalIncome > 0 ? ((monthlySubscriptions + recurringBills.reduce((sum: number, item: RecurringBillItem) => sum + item.amount, 0)) / totalIncome) * 100 : 0;
+  const accountBalance = accounts.reduce((sum, item) => sum + item.currentBalance, 0);
+  const cashBalance = accounts.filter((item) => item.type === 'cash').reduce((sum, item) => sum + item.currentBalance, 0);
+  const bankBalance = accounts.filter((item) => item.type !== 'cash').reduce((sum, item) => sum + item.currentBalance, 0);
 
   const spendingByCategory = budgets.map((budget: BudgetItem) => {
     const spent = expenses.filter((item: TransactionItem) => item.category === budget.name).reduce((sum: number, item: TransactionItem) => sum + item.amount, 0);
@@ -165,6 +170,15 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
       status: progress >= 100 ? 'over' : progress >= budget.alertPercent ? 'warning' : 'healthy'
     };
   });
+
+  const accountBreakdown = accounts.map((item: AccountItem) => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    currentBalance: item.currentBalance,
+    initialBalance: item.initialBalance,
+    movement: item.currentBalance - item.initialBalance
+  }));
 
   let chartData: Array<{ label: string; income: number; expense: number; net: number }> = [];
   let spendData: Array<{ label: string; amount: number }> = [];
@@ -247,15 +261,6 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         title: `${item.name} cobra pronto`,
         detail: `Se renueva el ${new Date(item.nextBillingDate).toLocaleDateString('es-ES')}.`,
         level: 'info'
-      })),
-    ...goals
-      .filter((item: GoalItem) => item.currentAmount < item.targetAmount * 0.4 && new Date(item.targetDate) <= addDays(new Date(), 90))
-      .slice(0, 2)
-      .map((item: GoalItem): AlertItem => ({
-        id: `goal-${item.id}`,
-        title: `${item.name} necesita más impulso`,
-        detail: `Solo llevas ${Math.round((item.currentAmount / Math.max(item.targetAmount, 1)) * 100)}% de avance.`,
-        level: 'warning'
       }))
   ].slice(0, 6);
 
@@ -274,7 +279,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
     return {
       month: label,
       fixed: subscriptionTotal + recurringTotal,
-      projectedCash: (user.monthlyIncome || totalIncome || 0) - (subscriptionTotal + recurringTotal + avgDailySpend * 30)
+      projectedCash: accountBalance - (subscriptionTotal + recurringTotal + avgDailySpend * 30)
     };
   });
 
@@ -289,35 +294,12 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
         amount: item.spent,
         actionLabel: item.progress >= 100 ? 'Reduce gastos o ajusta el límite' : 'Revisa compras pendientes'
       })),
-    ...upcomingCalendar.slice(0, 3).map((item): NotificationItem => ({
-      id: `notice-upcoming-${item.id}`,
-      title: `${item.title} vence pronto`,
-      detail: `${item.kind} programado para el ${new Date(item.date).toLocaleDateString('es-ES')}.`,
-      level: 'info',
-      amount: item.amount,
-      actionLabel: 'Confirma saldo disponible'
-    })),
+    ...(accountBalance < 0
+      ? [{ id: 'notice-accounts-negative', title: 'Tu saldo total está en negativo', detail: 'Revisa qué cuenta necesita una recarga o transferencia.', level: 'critical', amount: accountBalance, actionLabel: 'Muévete a Cuentas para corregirlo' }]
+      : []),
     ...(projectedNet < 0
-      ? [
-          {
-            id: 'notice-projection',
-            title: 'La proyección del periodo cierra en negativo',
-            detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.',
-            level: 'critical',
-            amount: projectedNet,
-            actionLabel: 'Recorta gastos variables esta semana'
-          } satisfies NotificationItem
-        ]
-      : [
-          {
-            id: 'notice-projection-positive',
-            title: 'La proyección del periodo se mantiene saludable',
-            detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.',
-            level: 'info',
-            amount: projectedNet,
-            actionLabel: 'Mantén el ritmo actual'
-          } satisfies NotificationItem
-        ])
+      ? [{ id: 'notice-projection', title: 'La proyección del periodo cierra en negativo', detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.', level: 'warning', amount: projectedNet, actionLabel: 'Recorta gastos variables esta semana' }]
+      : [{ id: 'notice-projection-positive', title: 'La proyección del periodo se mantiene saludable', detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.', level: 'info', amount: projectedNet, actionLabel: 'Mantén el ritmo actual' }])
   ].slice(0, 6);
 
   const forecastData = Array.from({ length: Math.min(chartData.length, period === 'year' ? 12 : Math.max(4, chartData.length)) }, (_, index) => {
@@ -367,6 +349,10 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
       totalSaved,
       monthlySubscriptions,
       balance,
+      accountBalance,
+      cashBalance,
+      bankBalance,
+      accountCount: accounts.length,
       savingsRate,
       recurringLoad,
       avgDailySpend,
@@ -384,6 +370,8 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
     goals,
     recurringBills,
     recurringUpcoming,
+    accounts,
+    accountBreakdown,
     spendingByCategory,
     categoryTrend,
     cashflowTrend: chartData,
@@ -399,7 +387,7 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
       topCategoryAmount: topCategory?.spent ?? 0,
       spendVelocity: avgDailySpend,
       overspend,
-      freeCashflow: balance - monthlySubscriptions,
+      freeCashflow: accountBalance - monthlySubscriptions,
       nextCharges: upcomingCalendar.slice(0, 3)
     }
   };

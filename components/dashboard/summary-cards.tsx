@@ -11,6 +11,10 @@ export function SummaryCards({
     totalSaved: number;
     monthlySubscriptions: number;
     balance: number;
+    accountBalance: number;
+    cashBalance: number;
+    bankBalance: number;
+    accountCount: number;
     savingsRate: number;
     budgetRiskCount: number;
     transactionCount: number;
@@ -19,12 +23,12 @@ export function SummaryCards({
   periodLabel: string;
 }) {
   const cards = [
-    { label: 'Balance neto', value: formatCurrency(summary.balance), note: `${periodLabel.toLowerCase()} entre ingresos y gastos` },
+    { label: 'Patrimonio líquido', value: formatCurrency(summary.accountBalance), note: `${summary.accountCount} cuentas y wallets activas` },
+    { label: 'Banco y digital', value: formatCurrency(summary.bankBalance), note: 'saldo fuera del efectivo' },
+    { label: 'Efectivo', value: formatCurrency(summary.cashBalance), note: 'dinero físico disponible' },
+    { label: 'Balance del periodo', value: formatCurrency(summary.balance), note: `${periodLabel.toLowerCase()} entre ingresos y gastos` },
     { label: 'Ingresos', value: formatCurrency(summary.totalIncome), note: summary.comparisonText },
-    { label: 'Gastos', value: formatCurrency(summary.totalSpent), note: `${summary.transactionCount} movimientos en el periodo` },
-    { label: 'Presupuesto', value: formatCurrency(summary.totalBudget), note: 'límite total disponible' },
-    { label: 'Ahorro', value: formatCurrency(summary.totalSaved), note: `${summary.savingsRate.toFixed(0)}% de tasa de ahorro` },
-    { label: 'Alertas', value: String(summary.budgetRiskCount), note: 'categorías que conviene revisar' }
+    { label: 'Gastos', value: formatCurrency(summary.totalSpent), note: `${summary.transactionCount} movimientos en el periodo` }
   ];
 
   return (

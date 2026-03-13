@@ -81,7 +81,11 @@ export async function completeOnboarding(formData: FormData) {
     }
   });
 
-  const existingBudgets = await prisma.budgetCategory.count({ where: { userId: user.id } });
+  const [existingBudgets, existingAccounts] = await Promise.all([
+    prisma.budgetCategory.count({ where: { userId: user.id } }),
+    prisma.account.count({ where: { userId: user.id } })
+  ]);
+
   if (!existingBudgets) {
     await prisma.budgetCategory.createMany({
       data: [
@@ -89,6 +93,15 @@ export async function completeOnboarding(formData: FormData) {
         { userId: user.id, name: "Transporte", icon: "Car", limitAmount: monthlyIncome * 0.1 || 250, alertPercent: 80 },
         { userId: user.id, name: "Hogar", icon: "Home", limitAmount: monthlyIncome * 0.3 || 900, alertPercent: 85 },
         { userId: user.id, name: "Entretenimiento", icon: "Film", limitAmount: monthlyIncome * 0.08 || 180, alertPercent: 75 }
+      ]
+    });
+  }
+
+  if (!existingAccounts) {
+    await prisma.account.createMany({
+      data: [
+        { userId: user.id, name: "Cuenta principal", type: "bank", currency, initialBalance: monthlyIncome || 1200, currentBalance: monthlyIncome || 1200 },
+        { userId: user.id, name: "Efectivo", type: "cash", currency, initialBalance: 150, currentBalance: 150 }
       ]
     });
   }

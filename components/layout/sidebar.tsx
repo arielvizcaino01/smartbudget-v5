@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { BadgeDollarSign, ChartColumnBig, Goal, LayoutDashboard, Receipt, Repeat2, Settings, WalletCards } from "lucide-react";
+import { BadgeDollarSign, ChartColumnBig, Goal, LayoutDashboard, Landmark, Receipt, Repeat2, Settings, WalletCards } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
+  { href: "/dashboard/accounts", label: "Cuentas", icon: Landmark },
   { href: "/dashboard/transactions", label: "Movimientos", icon: WalletCards },
   { href: "/dashboard/budgets", label: "Presupuestos", icon: ChartColumnBig },
   { href: "/dashboard/subscriptions", label: "Suscripciones", icon: Repeat2 },
@@ -40,7 +41,7 @@ export default function Sidebar() {
           <Receipt className="h-4 w-4 text-brand-600" />
           Vista general
         </div>
-        <p className="text-sm text-slate-500">Revisa cómo va tu dinero por día, semana, mes o año, sin salir del panel principal.</p>
+        <p className="text-sm text-slate-500">Ahora también puedes separar saldo por banco, efectivo y ahorro para que el balance refleje dónde está realmente tu dinero.</p>
       </div>
     </aside>
   );

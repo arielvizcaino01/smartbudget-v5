@@ -38,8 +38,8 @@ export default async function BudgetsPage({
       <section className="card p-6">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Crear presupuesto</h2>
-            <p className="text-sm text-slate-500">Define límites por categoría y alertas de consumo.</p>
+            <h2 className="text-xl font-semibold">Presupuestos por categoría</h2>
+            <p className="text-sm text-slate-500">Una vista más visual de tus límites, progreso y alertas para que leas tu presupuesto de un vistazo.</p>
           </div>
           <div className="grid gap-2 text-sm text-slate-500 md:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 px-4 py-3"><span className="block text-xs uppercase tracking-wide">Categorías</span><span className="text-lg font-semibold text-slate-900">{budgets.length}</span></div>
@@ -73,17 +73,26 @@ export default async function BudgetsPage({
 
           return (
             <Fragment key={item.id}>
-              <div className="card p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="card premium-card p-5">
+                <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold">{item.category}</h3>
                     <p className="text-sm text-slate-500">Alerta al {item.alertPercent}%</p>
                   </div>
                   <span className="badge">{item.progress.toFixed(0)}%</span>
                 </div>
-                <p className="text-sm text-slate-500">Gastado {formatCurrency(item.spent)} de {formatCurrency(item.limit)}</p>
-                <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(item.progress, 100)}%` }} />
+                <div className="grid gap-4 sm:grid-cols-[96px_1fr] sm:items-center">
+                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full" style={{ background: `conic-gradient(#2563eb ${Math.min(item.progress, 100) * 3.6}deg, #e2e8f0 0deg)` }}><div className="flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full bg-white"><span className="text-lg font-semibold text-slate-900">{item.progress.toFixed(0)}%</span><span className="text-[10px] uppercase tracking-wide text-slate-500">usado</span></div></div>
+                  <div>
+                    <p className="text-sm text-slate-500">Gastado {formatCurrency(item.spent)} de {formatCurrency(item.limit)}</p>
+                    <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
+                      <div className={`h-full rounded-full ${item.progress >= 100 ? "bg-rose-500" : item.progress >= item.alertPercent ? "bg-amber-500" : "bg-brand-500"}`} style={{ width: `${Math.min(item.progress, 100)}%` }} />
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+                      <span className="rounded-full bg-slate-100 px-3 py-1">Disponible {formatCurrency(Math.max(item.limit - item.spent, 0))}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1">Alerta {item.alertPercent}%</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <a href={`#edit-${item.id}`} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50">Editar</a>

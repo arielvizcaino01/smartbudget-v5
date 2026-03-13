@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChartColumnBig, Goal, LayoutDashboard, Repeat2, Settings, WalletCards } from "lucide-react";
+import { ChartColumnBig, Goal, Landmark, LayoutDashboard, Repeat2, Settings, WalletCards } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
-  { href: "/dashboard/transactions", label: "Movimientos", icon: WalletCards },
+  { href: "/dashboard/accounts", label: "Cuentas", icon: Landmark },
+  { href: "/dashboard/transactions", label: "Movs.", icon: WalletCards },
   { href: "/dashboard/budgets", label: "Presup.", icon: ChartColumnBig },
   { href: "/dashboard/subscriptions", label: "Subs.", icon: Repeat2 },
   { href: "/dashboard/goals", label: "Metas", icon: Goal },
@@ -18,7 +19,7 @@ export function MobileNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 backdrop-blur lg:hidden">
-      <div className="grid grid-cols-6 gap-1">
+      <div className="grid grid-cols-7 gap-1">
         {items.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
