@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import QuickAddTransactionModal from "@/components/dashboard/quick-add-transaction-modal";
-import { Funnel, Landmark, Search, Sparkles, Wallet } from "lucide-react";
+import { Funnel, Landmark, Search, Sparkles, Wallet, Plus } from "lucide-react";
 import { requireCompletedUser } from "@/lib/auth";
 import { createTransaction, deleteTransaction, updateTransaction } from "@/app/dashboard/actions";
 import { prisma } from "@/lib/prisma";
