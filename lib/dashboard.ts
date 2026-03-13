@@ -284,23 +284,50 @@ export async function getDashboardData(period: DashboardPeriod = 'month') {
   });
 
   const notificationCenter: NotificationItem[] = [
-    ...spendingByCategory
-      .filter((item) => item.progress >= 85)
-      .map((item): NotificationItem => ({
-        id: `notice-budget-${item.id}`,
-        title: `${item.category} se está acelerando`,
-        detail: `Llevas ${item.progress.toFixed(0)}% del límite definido para esta categoría.`,
-        level: item.progress >= 100 ? 'critical' : 'warning',
-        amount: item.spent,
-        actionLabel: item.progress >= 100 ? 'Reduce gastos o ajusta el límite' : 'Revisa compras pendientes'
-      })),
-    ...(accountBalance < 0
-      ? [{ id: 'notice-accounts-negative', title: 'Tu saldo total está en negativo', detail: 'Revisa qué cuenta necesita una recarga o transferencia.', level: 'critical', amount: accountBalance, actionLabel: 'Muévete a Cuentas para corregirlo' }]
-      : []),
-    ...(projectedNet < 0
-      ? [{ id: 'notice-projection', title: 'La proyección del periodo cierra en negativo', detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.', level: 'warning', amount: projectedNet, actionLabel: 'Recorta gastos variables esta semana' }]
-      : [{ id: 'notice-projection-positive', title: 'La proyección del periodo se mantiene saludable', detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.', level: 'info', amount: projectedNet, actionLabel: 'Mantén el ritmo actual' }])
-  ].slice(0, 6);
+  ...spendingByCategory
+    .filter((item) => item.progress >= 85)
+    .map((item): NotificationItem => ({
+      id: `notice-budget-${item.id}`,
+      title: `${item.category} se está acelerando`,
+      detail: `Llevas ${item.progress.toFixed(0)}% del límite definido para esta categoría.`,
+      level: item.progress >= 100 ? 'critical' : 'warning',
+      amount: item.spent,
+      actionLabel: item.progress >= 100 ? 'Reduce gastos o ajusta el límite' : 'Revisa compras pendientes'
+    })),
+  ...(accountBalance < 0
+    ? [
+        {
+          id: 'notice-accounts-negative',
+          title: 'Tu saldo total está en negativo',
+          detail: 'Revisa qué cuenta necesita una recarga o transferencia.',
+          level: 'critical',
+          amount: accountBalance,
+          actionLabel: 'Muévete a Cuentas para corregirlo'
+        } as NotificationItem
+      ]
+    : []),
+  ...(projectedNet < 0
+    ? [
+        {
+          id: 'notice-projection',
+          title: 'La proyección del periodo cierra en negativo',
+          detail: 'Si mantienes este ritmo, el saldo neto terminaría por debajo de cero.',
+          level: 'warning',
+          amount: projectedNet,
+          actionLabel: 'Recorta gastos variables esta semana'
+        } as NotificationItem
+      ]
+    : [
+        {
+          id: 'notice-projection-positive',
+          title: 'La proyección del periodo se mantiene saludable',
+          detail: 'Tu ritmo actual apunta a cerrar con saldo positivo.',
+          level: 'info',
+          amount: projectedNet,
+          actionLabel: 'Mantén el ritmo actual'
+        } as NotificationItem
+      ])
+].slice(0, 6);
 
   const forecastData = Array.from({ length: Math.min(chartData.length, period === 'year' ? 12 : Math.max(4, chartData.length)) }, (_, index) => {
     const visible = chartData.slice(0, index + 1);
