@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Fragment } from "react";
 import QuickAddTransactionModal from "@/components/dashboard/quick-add-transaction-modal";
 import { Funnel, Landmark, Search, Sparkles, Wallet } from "lucide-react";
